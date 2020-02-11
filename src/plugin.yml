@@ -1,0 +1,12 @@
+main: net.lumadevelopment.netlvl.SNLCore
+name: SentinelNetworkLevels
+version: 1.0.0
+author: LumaDevelopment
+
+softdepend: [PlaceholderAPI] 
+
+commands:
+  nl:
+    usage: /<command>
+    description: Main SentinelNetworkLevels command.
+    aliases: [networklevels]
