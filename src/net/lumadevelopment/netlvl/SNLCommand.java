@@ -35,7 +35,7 @@ public class SNLCommand implements CommandExecutor{
 		
 		if(cmd.getName().equalsIgnoreCase("nl")) {
 			if(args.length == 0) {
-				sender.sendMessage(SNLCore.prefix + ChatColor.GOLD + ChatColor.BOLD + SNLCore.instance.getDescription().getName() + " v" + SNLCore.instance.getDescription().getVersion() + " by " + SNLCore.instance.getDescription().getAuthors().get(0) + "\n"
+				sender.sendMessage("" + ChatColor.GOLD + ChatColor.BOLD + SNLCore.instance.getDescription().getName() + " v" + SNLCore.instance.getDescription().getVersion() + " by " + SNLCore.instance.getDescription().getAuthors().get(0) + "\n"
 						+ ChatColor.RESET
 						+ "/nl xp - Check the amount of XP you have.\n"
 						+ "/nl xpneeded <level> - Shows how much total XP is needed for a level.\n");
