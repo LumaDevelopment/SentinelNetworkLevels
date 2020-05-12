@@ -15,18 +15,14 @@ public class SNLCommand implements CommandExecutor{
 
 	//isInteger function courtesy of corsiKa on StackOverflow
 	public static boolean isInteger(String s) {
-	    return isInteger(s,10);
-	}
-
-	public static boolean isInteger(String s, int radix) {
-	    if(s.isEmpty()) return false;
-	    for(int i = 0; i < s.length(); i++) {
-	        if(i == 0 && s.charAt(i) == '-') {
-	            if(s.length() == 1) return false;
-	            else continue;
-	        }
-	        if(Character.digit(s.charAt(i),radix) < 0) return false;
-	    }
+		
+		try {
+			@SuppressWarnings("unused")
+			Integer i = Integer.valueOf(s);
+		} catch (Exception e) {
+			return false;
+		}
+		
 	    return true;
 	}
 	
@@ -55,12 +51,12 @@ public class SNLCommand implements CommandExecutor{
 			}else if(args.length == 1) {
 				if(args[0].equalsIgnoreCase("xp")) {
 					if(!(sender instanceof Player)) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You must be a player to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You must be a player to use this command!");
 						return true;
 					}
 					
 					try {
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "Your XP is " + ChatColor.AQUA + LevelFunctions.getXP(((Player) sender).getUniqueId()) + ChatColor.GREEN + ", and you are " + ChatColor.AQUA + "Network Level " + LevelFunctions.getLevel(((Player) sender).getUniqueId()));
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "Your XP is " + ChatColor.AQUA + LevelFunctions.getXP(((Player) sender).getUniqueId()) + ChatColor.GREEN + ", and you are " + ChatColor.AQUA + "Network Level " + LevelFunctions.getLevel(((Player) sender).getUniqueId()));
 					} catch (SQLException e) {
 						SNLCore.instance.getLogger().log(Level.SEVERE, "SentinelNetworkLevels can not get XP! StackTrace:");
 						e.printStackTrace();
@@ -69,41 +65,41 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}else if(args[0].equalsIgnoreCase("reload")) {
 					if(!sender.hasPermission("knightsips.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
 					SNLCore.instance.reloadConfig();
-					sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "SentinelNetworkLevels reloaded!");
+					sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "SentinelNetworkLevels reloaded!");
 					return true;
 				}
 				
-				sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Invalid usage of the command! Use \"/nl\" to see command usages!");
+				sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Invalid usage of the command! Use \"/nl\" to see command usages!");
 				return true;
 			}else if(args.length == 2) {
 			
 				if(args[0].equalsIgnoreCase("xpneeded")) {
 					
 					if(!isInteger(args[1])) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[1] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[1] + " is not a number!");
 						return true;
 					}
 					
 					Integer level = Integer.valueOf(args[1]);
 					
 					if(level < 1 || level > 290) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Level " + level + " does not fit within the support range! (Levels 1-290)");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Level " + level + " does not fit within the support range! (Levels 1-290)");
 						return true;
 					}
 					
 					if(sender instanceof Player) {
 						try {
 							if(level <= LevelFunctions.getLevel(((Player) sender).getUniqueId())) {
-								sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level);
+								sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level);
 								return true;
 							}else {
 								Integer xp_diff = LevelFunctions.getXPForLevel(level) - LevelFunctions.getXP(((Player) sender).getUniqueId());
-								sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level 
+								sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level 
 										+ ChatColor.RESET + "\n" + ChatColor.GREEN + "You are " + ChatColor.AQUA + xp_diff + ChatColor.GREEN + " XP away from getting to this level.");
 								return true;
 							}
@@ -112,13 +108,13 @@ public class SNLCommand implements CommandExecutor{
 							e.printStackTrace();
 						}
 					}else {
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level);
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "A player needs " + ChatColor.AQUA + LevelFunctions.getXPForLevel(level) + ChatColor.GREEN + " XP to get to" + ChatColor.AQUA + " Network Level " +  level);
 						return true;
 					}
 					
 				}else if(args[0].equalsIgnoreCase("wipe")) {
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
@@ -126,7 +122,7 @@ public class SNLCommand implements CommandExecutor{
 					UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 					
 					if(uuid == null) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Player " + args[1] + " could not be found!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Player " + args[1] + " could not be found!");
 						return true;
 					}
 					
@@ -137,12 +133,12 @@ public class SNLCommand implements CommandExecutor{
 						e.printStackTrace();
 					}
 					
-					sender.sendMessage(SNLCore.prefix + ChatColor.RED + "All XP for " + ChatColor.AQUA + args[1] + ChatColor.RED + " wiped.");
+					sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "All XP for " + ChatColor.AQUA + args[1] + ChatColor.RED + " wiped.");
 					
 					return true;
 				}else if(args[0].equalsIgnoreCase("getreward")) {
 					if(!isInteger(args[1])) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[1] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[1] + " is not a number!");
 						return true;
 					}
 					
@@ -153,7 +149,7 @@ public class SNLCommand implements CommandExecutor{
 						reward = RewardsFunctions.getRewardObject(level);
 						
 						if(reward == null) {
-							sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Reward does not exist!");
+							sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Reward does not exist!");
 							return true;
 						}
 						
@@ -161,7 +157,7 @@ public class SNLCommand implements CommandExecutor{
 						String command = reward.getCommand();
 						String name = reward.getName();
 						
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "Requested Reward:\n"
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "Requested Reward:\n"
 								+ "Level: " + ChatColor.RESET + level + "\n"
 								+ ChatColor.GREEN + "Server: " + ChatColor.RESET + server + "\n"
 								+ ChatColor.GREEN + "Command: " + ChatColor.RESET + command + "\n"
@@ -174,13 +170,13 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}
 				
-				sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Invalid usage of the command! Use \"/nl\" to see command usages!");
+				sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Invalid usage of the command! Use \"/nl\" to see command usages!");
 				return true;
 				
 			}else if(args.length == 3) {
 				if(args[0].equalsIgnoreCase("set")) {
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
@@ -188,19 +184,19 @@ public class SNLCommand implements CommandExecutor{
 					UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 					
 					if(uuid == null) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Player " + args[1] + " could not be found!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Player " + args[1] + " could not be found!");
 						return true;
 					}
 					
 					if(isInteger(args[2]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
 					Long xp_check = Long.valueOf(args[2]);
 					
 					if(xp_check < 0 || xp_check > 2147483647) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is either too large or too small!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is either too large or too small!");
 						return true;
 					}
 					
@@ -219,7 +215,7 @@ public class SNLCommand implements CommandExecutor{
 							}
 						}
 						
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + Integer.valueOf(args[2]));
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + Integer.valueOf(args[2]));
 					} catch (SQLException e) {
 						SNLCore.instance.getLogger().log(Level.SEVERE, "SentinelNetworkLevels is having trouble getting levels or setting XP! StackTrace:");
 						e.printStackTrace();
@@ -228,7 +224,7 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}else if(args[0].equalsIgnoreCase("add")) {
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
@@ -236,19 +232,19 @@ public class SNLCommand implements CommandExecutor{
 					UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 					
 					if(uuid == null) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Player " + args[1] + " could not be found!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Player " + args[1] + " could not be found!");
 						return true;
 					}
 					
 					if(isInteger(args[2]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
 					Integer xp_check = Integer.valueOf(args[2]);
 					
 					if(xp_check < 0 || xp_check > 2147483647) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is either too large or too small!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is either too large or too small!");
 						return true;
 					}
 					
@@ -257,7 +253,7 @@ public class SNLCommand implements CommandExecutor{
 						current_xp = LevelFunctions.getXP(uuid) + xp_check;
 						
 						if(current_xp < 0 || current_xp > 2147483647) {
-							sender.sendMessage(SNLCore.prefix + ChatColor.RED + "The resulting XP is either too large or too small!");
+							sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "The resulting XP is either too large or too small!");
 							return true;
 						}
 						
@@ -274,7 +270,7 @@ public class SNLCommand implements CommandExecutor{
 							}
 						}
 						
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + current_xp);
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + current_xp);
 					} catch (SQLException e) {
 						SNLCore.instance.getLogger().log(Level.SEVERE, "SentinelNetworkLevels is having trouble getting XP or setting XP! StackTrace:");
 						e.printStackTrace();
@@ -283,7 +279,7 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}else if(args[0].equalsIgnoreCase("remove")) {
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
@@ -291,19 +287,19 @@ public class SNLCommand implements CommandExecutor{
 					UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 					
 					if(uuid == null) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Player " + args[1] + " could not be found!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Player " + args[1] + " could not be found!");
 						return true;
 					}
 					
 					if(isInteger(args[2]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
 					Integer xp_check = Integer.valueOf(args[2]);
 					
 					if(xp_check < 0 || xp_check > 2147483647) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is either too large or too small!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is either too large or too small!");
 						return true;
 					}
 					
@@ -312,13 +308,13 @@ public class SNLCommand implements CommandExecutor{
 						current_xp = LevelFunctions.getXP(uuid) - xp_check;
 						
 						if(current_xp < 0 || current_xp > 2147483647) {
-							sender.sendMessage(SNLCore.prefix + ChatColor.RED + "The resulting XP is either too large or too small!");
+							sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "The resulting XP is either too large or too small!");
 							return true;
 						}
 						
 						LevelFunctions.setXP(uuid, current_xp);
 						
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + current_xp);
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + args[1] + "'s XP has been set to " + ChatColor.AQUA + current_xp);
 					} catch (SQLException e) {
 						SNLCore.instance.getLogger().log(Level.SEVERE, "SentinelNetworkLevels is having trouble getting XP or setting XP! StackTrace:");
 						e.printStackTrace();
@@ -327,7 +323,7 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}else if(args[0].equalsIgnoreCase("setlevel")) {
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
@@ -335,19 +331,19 @@ public class SNLCommand implements CommandExecutor{
 					UUID uuid = Bukkit.getOfflinePlayer(args[1]).getUniqueId();
 					
 					if(uuid == null) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Player " + args[1] + " could not be found!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Player " + args[1] + " could not be found!");
 						return true;
 					}
 					
 					if(isInteger(args[2]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
 					Integer level_check = Integer.valueOf(args[2]);
 					
 					if(level_check < 0 || level_check > 290) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is either too large or too small!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is either too large or too small!");
 						return true;
 					}
 					
@@ -366,7 +362,7 @@ public class SNLCommand implements CommandExecutor{
 							}
 						}
 						
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + args[1] + "'s" + ChatColor.AQUA + " Network Level " + ChatColor.GREEN + "has been set to" + ChatColor.AQUA + " Network Level "  + level_check);
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + args[1] + "'s" + ChatColor.AQUA + " Network Level " + ChatColor.GREEN + "has been set to" + ChatColor.AQUA + " Network Level "  + level_check);
 					} catch (SQLException e) {
 						SNLCore.instance.getLogger().log(Level.SEVERE, "SentinelNetworkLevels is having trouble getting XP or setting XP! StackTrace:");
 						e.printStackTrace();
@@ -375,18 +371,18 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 				}
 				
-				sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Invalid usage of the command! Use \"/ksnl\" to see command usages!");
+				sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Invalid usage of the command! Use \"/ksnl\" to see command usages!");
 				return true;
 			}else {
 				if(args[0].equalsIgnoreCase("createreward")) {
 					
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
 					if(isInteger(args[1]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
@@ -421,7 +417,7 @@ public class SNLCommand implements CommandExecutor{
 					
 					try {
 						RewardsFunctions.createReward(level, server, command, name);
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "Created reward:\n"
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "Created reward:\n"
 								+ "Level: " + ChatColor.RESET + level + "\n"
 								+ ChatColor.GREEN + "Server: " + ChatColor.RESET + server + "\n"
 								+ ChatColor.GREEN + "Command: " + ChatColor.RESET + command + "\n"
@@ -437,12 +433,12 @@ public class SNLCommand implements CommandExecutor{
 				}else if(args[0].equalsIgnoreCase("updatereward")) {
 					
 					if(!sender.hasPermission("network.levels.admin")) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + "You do not have permission to use this command!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "You do not have permission to use this command!");
 						return true;
 					}
 					
 					if(isInteger(args[1]) == false) {
-						sender.sendMessage(SNLCore.prefix + ChatColor.RED + args[2] + " is not a number!");
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + args[2] + " is not a number!");
 						return true;
 					}
 					
@@ -477,7 +473,7 @@ public class SNLCommand implements CommandExecutor{
 					
 					try {
 						RewardsFunctions.updateReward(level, server, command, name);
-						sender.sendMessage(SNLCore.prefix + ChatColor.GREEN + "Updated reward:\n"
+						sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.GREEN + "Updated reward:\n"
 								+ "Level: " + ChatColor.RESET + level + "\n"
 								+ ChatColor.GREEN + "Server: " + ChatColor.RESET + server + "\n"
 								+ ChatColor.GREEN + "Command: " + ChatColor.RESET + command + "\n"
@@ -490,7 +486,7 @@ public class SNLCommand implements CommandExecutor{
 					return true;
 					
 				}else {
-					sender.sendMessage(SNLCore.prefix + ChatColor.RED + "Invalid usage of the command! Use \"/ksnl\" to see command usages!");
+					sender.sendMessage(SNLCore.getPrefix(sender) + ChatColor.RED + "Invalid usage of the command! Use \"/ksnl\" to see command usages!");
 					return true;
 				}
 			}

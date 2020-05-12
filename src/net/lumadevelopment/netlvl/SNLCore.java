@@ -6,7 +6,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,7 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import net.md_5.bungee.api.ChatColor;
+import me.clip.placeholderapi.PlaceholderAPI;
 
 public class SNLCore extends JavaPlugin implements Listener{
 	
@@ -31,8 +33,6 @@ public class SNLCore extends JavaPlugin implements Listener{
 	public static HashMap<UUID, Integer> player_level = new HashMap<UUID, Integer>();
 	//private static List<UUID> re_init_ed = new ArrayList<UUID>();
 	
-	public static String prefix;
-	
 	//Time Statistics
 	public static Integer xp_per_played_interval;
 	public static Integer played_interval;
@@ -44,7 +44,38 @@ public class SNLCore extends JavaPlugin implements Listener{
 	public static String user;
 	public static String password;
 	
-	//Level XP Required
+	public static boolean papi_enabled;
+	
+	public static String getPrefix(CommandSender sender) {
+		boolean isPlayer = false;
+		
+		if(sender instanceof Player) {
+			isPlayer = true;
+		}
+		
+		if(isPlayer == true && papi_enabled == true) {
+			Player p = (Player) sender;
+			return PlaceholderAPI.setPlaceholders(p, ChatColor.translateAlternateColorCodes('&', instance.getConfig().getString("Prefix")));
+		} else {
+			return ChatColor.translateAlternateColorCodes('&', instance.getConfig().getString("Prefix"));
+		}
+	}
+	
+	public static String getPrefix(Player p) {
+		if(p != null && papi_enabled == true) {
+			return PlaceholderAPI.setPlaceholders(p, ChatColor.translateAlternateColorCodes('&', instance.getConfig().getString("Prefix")));
+		}else {
+			return ChatColor.translateAlternateColorCodes('&', instance.getConfig().getString("Prefix"));
+		}
+	}
+	
+	public static String format(Player p, String s) {
+		if(p != null && papi_enabled == true) {
+			return PlaceholderAPI.setPlaceholders(p, ChatColor.translateAlternateColorCodes('&', s));
+		}else {
+			return ChatColor.translateAlternateColorCodes('&', s);
+		}
+	}
 	
 	@Override
 	public void onEnable(){
@@ -96,6 +127,14 @@ public class SNLCore extends JavaPlugin implements Listener{
 		}
 			
 		reloadConfig();
+		
+		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			new SNLExtension(instance).register();
+			papi_enabled = true;
+		}else {
+			papi_enabled = false;
+		}
+		
 		ip = getConfig().getString("SQL.IP");
 		port = getConfig().getString("SQL.Port");
 		database = getConfig().getString("SQL.DatabaseName");
@@ -103,7 +142,6 @@ public class SNLCore extends JavaPlugin implements Listener{
 		password = getConfig().getString("SQL.Password");
 		xp_per_played_interval = getConfig().getInt("XPForPlaying.XPPerMinutes");
 		played_interval = getConfig().getInt("XPForPlaying.MinutesToGetXP");
-		prefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("Prefix"));
 		
 		try {
 			LevelFunctions.createSnlTable();
@@ -146,10 +184,6 @@ public class SNLCore extends JavaPlugin implements Listener{
 		}, 0L, refresh);
 		*/	
 		
-		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			new SNLExtension(instance).register();
-		}
-		
 		Bukkit.getPluginManager().registerEvents(this, this);
 		getCommand("nl").setExecutor(new SNLCommand());
 		
@@ -174,20 +208,18 @@ public class SNLCore extends JavaPlugin implements Listener{
 		scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
-				
 				try {
 					for(SNLCommandObj obj : RewardsFunctions.getRewardCommands()) {
 						
 						if(obj.getServer().equalsIgnoreCase(getConfig().getString("Server")) || obj.getServer().equalsIgnoreCase("global")) {
-							//make this thing below not needed
 							
 							if(Bukkit.getOnlinePlayers().contains(Bukkit.getPlayer(UUID.fromString(obj.getUUID())))) {
-								
-								getServer().dispatchCommand(Bukkit.getConsoleSender(), obj.getCommand());
+								getServer().dispatchCommand(Bukkit.getConsoleSender(), format(Bukkit.getPlayer(UUID.fromString(obj.getUUID())), obj.getCommand()));
 								obj.commandExecuted();
 							}
 						}
 					}
+					
 				} catch (CommandException | SQLException e) {
 					getLogger().log(Level.SEVERE, "SentinelNetworkLevels could not execute command! StackTrace:");
 					e.printStackTrace();
@@ -196,7 +228,6 @@ public class SNLCore extends JavaPlugin implements Listener{
 		}, 0L, 100L);
 		
 		if(getConfig().getString("UseXPBar").equalsIgnoreCase("true")) {
-			//SPEREATE REWARD REDEMPTION FROM XP BAR
 			
 			if(getConfig().getInt("XPBarRefreshInSeconds") == 0) {
 				getConfig().set("XPBarRefreshInSeconds", 60);
@@ -307,7 +338,7 @@ public class SNLCore extends JavaPlugin implements Listener{
         			}
         		}
         		
-        		//30 minutes -> 1800 seconds -> 36000 ticks
+        		//minutes -> seconds -> ticks
         		long played_interval_f = played_interval * 60 * 20;
         		
         		if(!e.getPlayer().hasPermission("network.levels.get_play_xp")) {
